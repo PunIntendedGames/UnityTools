@@ -1,0 +1,7 @@
+{
+  "name": "com.punintended.tools",
+  "version": "0.0.0",
+  "displayName": "Pun Intended Tools",
+  "unity": "2019.1",
+  "description": "contains tools such as a statemachine, a pooling system, and lazy singletons"
+}
