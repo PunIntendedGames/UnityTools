@@ -2,7 +2,8 @@
 
 namespace PunIntended.Tools
 {
-    public abstract class LazyMonoBehaviourSingleton<T> : MonoBehaviour where T : MonoBehaviour
+    public abstract class LazyMonoBehaviourSingleton<T> : MonoBehaviour 
+        where T : MonoBehaviour
     {
         private static T _singleton;
 

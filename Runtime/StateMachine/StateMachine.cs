@@ -1,22 +1,20 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace PunIntended.Tools
 {
-    public class StateMachine<TOwner>
+    public abstract class StateMachine<TOwner, TState> where TState : IState<TOwner, TState>
     {
         public TOwner Owner { get; private set; }
 
-        private readonly Dictionary<Type, IState<TOwner>> _availableStates = new();
+        private readonly Dictionary<Type, TState> _availableStates = new();
 
-        private readonly List<IState<TOwner>> _currentStates = new();
+        protected readonly List<TState> CurrentStates = new();
 
-        public StateMachine(TOwner owner, params IState<TOwner>[] states)
+        public StateMachine(TOwner owner, params TState[] states)
         {
             Owner = owner;
-            foreach (IState<TOwner> state in states) 
+            foreach (TState state in states)
             {
                 state.Owner = Owner;
                 state.StateMachine = this;
@@ -26,157 +24,107 @@ namespace PunIntended.Tools
             }
         }
 
+        // switching
         public void Switch<T>() 
-            where T : IState<TOwner>
+            where T : IState<TOwner, TState>
         {
             SwitchCurrentStates(typeof(T));
         }
 
         public void Switch<T, U>() 
-            where T : IState<TOwner>
-            where U : IState<TOwner>
+            where T : IState<TOwner, TState>
+            where U : IState<TOwner, TState>
         {
             SwitchCurrentStates(typeof(T), typeof(U));
         }
 
         public void Switch<T, U, V>() 
-            where T : IState<TOwner>
-            where U : IState<TOwner>
-            where V : IState<TOwner>
+            where T : IState<TOwner, TState>
+            where U : IState<TOwner, TState>
+            where V : IState<TOwner, TState>
         {
             SwitchCurrentStates(typeof(T), typeof(U), typeof(V));
         }
 
+        private void SwitchCurrentStates(params Type[] stateTypes)
+        {
+            foreach (IState<TOwner, TState> stateType in CurrentStates)
+            {
+                RemoveCurrentState(stateType.GetType());
+            }
+
+            foreach (Type stateType in stateTypes)
+            {
+                AddCurrentState(stateType);
+            }
+        }
+
+        // adding
         public void Add<T>()
-            where T : IState<TOwner>
+            where T : IState<TOwner, TState>
         {
-            AddState(typeof(T));
+            AddCurrentState(typeof(T));
         }
 
-        public void Remove<T>()
-            where T : IState<TOwner>
+        public void Add<T, U>()
+            where T : IState<TOwner, TState>
         {
-            RemoveState(typeof(T));
+            AddCurrentStates(typeof(T), typeof(U));
         }
 
-        private void AddState(Type stateType)
+        public void Add<T, U, V>()
+            where T : IState<TOwner, TState>
         {
-            IState<TOwner> state = _availableStates[stateType];
-            _currentStates.Add(state);
-            state.Setup();
+            AddCurrentStates(typeof(T), typeof(U), typeof(V));
+        }
+
+        private void AddCurrentState(Type stateType)
+        {
+            TState state = _availableStates[stateType];
+            CurrentStates.Add(state);
             state.OnEnter();
         }
 
-        private void RemoveState(Type stateType)
+        private void AddCurrentStates(params Type[] stateTypes)
         {
-            IState<TOwner> state = _availableStates[stateType];
-            _currentStates.Remove(state);
+            foreach (Type stateType in stateTypes)
+            {
+                AddCurrentState(stateType);
+            }
+        }
+
+        // removing
+        public void Remove<T>()
+            where T : IState<TOwner, TState>
+        {
+            RemoveCurrentState(typeof(T));
+        }
+
+        public void Remove<T, U>()
+            where T : IState<TOwner, TState>
+        {
+            RemoveCurrentStates(typeof(T), typeof(U));
+        }
+
+        public void Remove<T, U, V>()
+            where T : IState<TOwner, TState>
+        {
+            RemoveCurrentStates(typeof(T), typeof(U), typeof(V));
+        }
+
+        private void RemoveCurrentState(Type stateType)
+        {
+            TState state = _availableStates[stateType];
+            CurrentStates.Remove(state);
             state.OnExit();
-            state.Cleanup();
         }
 
-        private void SwitchCurrentStates(params Type[] stateTypes)
+        private void RemoveCurrentStates(params Type[] stateTypes)
         {
-            // exit old states
-            foreach (Type state in _currentStates)
+            foreach (Type stateType in stateTypes)
             {
-                RemoveState(state);
+                RemoveCurrentState(stateType);
             }
-
-            foreach (Type state in stateTypes)
-            {
-                AddState(state);
-            }
-        }
-    }
-
-    public interface IState<TOwner>
-    {
-        public TOwner Owner { get; set; }
-        public StateMachine<TOwner> StateMachine { get; set; }
-        public abstract void Setup();
-        public abstract void Cleanup();
-        public abstract void OnEnter();
-        public abstract void OnExit();
-    }
-
-    public abstract class RuntimeState<TOwner> : IState<TOwner> where TOwner : MonoBehaviour
-    {
-        public TOwner Owner { get; set; }
-        public StateMachine<TOwner> StateMachine { get; set; }
-        protected GameObject GameObject => Owner.gameObject;
-        
-        private readonly List<Coroutine> _activeCoroutines = new();
-
-        public void Setup()
-        {
-            UpdateManager.Singleton.OnUpdate += OnUpdate;
-            UpdateManager.Singleton.OnFixedUpdate += OnFixedUpdate;
-        }
-
-        public void Cleanup()
-        {
-            UpdateManager.Singleton.OnUpdate -= OnUpdate;
-            UpdateManager.Singleton.OnFixedUpdate -= OnFixedUpdate;
-        }
-
-        public virtual void OnEnter() { }
-        public virtual void OnExit() { }
-        public virtual void OnUpdate() { }
-        public virtual void OnFixedUpdate() { }
-
-        // MonoBehaviour.StartCoroutine for state
-        protected Coroutine StartLocalCoroutine(IEnumerator enumerator)
-        {
-            // start the coroutine
-            Coroutine coroutine = Owner.StartCoroutine(enumerator);
-            _activeCoroutines.Add(coroutine);
-
-            // start coroutine that will remove the coroutine when its finished
-            Owner.StartCoroutine(RemoveFromActiveCoroutinesCoroutine(coroutine));
-            return coroutine;
-        }
-
-        // automatically remove coroutine from current coroutines once its finished on its own
-        private IEnumerator RemoveFromActiveCoroutinesCoroutine(Coroutine coroutine)
-        {
-            yield return coroutine;
-            if (coroutine != null)
-            {
-                _activeCoroutines.Remove(coroutine);
-            }
-        }
-
-        // MonoBehaviour.StopCoroutine for state
-        protected void StopLocalCoroutine(Coroutine coroutine)
-        {
-            if (coroutine != null)
-            {
-                if (_activeCoroutines.Contains(coroutine))
-                {
-                    _activeCoroutines.Remove(coroutine);
-                }
-
-                Owner.StopCoroutine(coroutine);
-            }
-        }
-
-        // MonoBehaviour.StopAllCoroutines for state
-        // can get called from state implementation, is always called when state exits
-        protected void StopAllLocalCoroutines()
-        {
-            List<Coroutine> coroutinesToStop = new List<Coroutine>();
-            foreach (Coroutine coroutine in _activeCoroutines)
-            {
-                coroutinesToStop.Add(coroutine);
-            }
-
-            foreach (Coroutine coroutine in coroutinesToStop)
-            {
-                StopLocalCoroutine(coroutine);
-            }
-
-            _activeCoroutines.Clear();
         }
     }
 }
