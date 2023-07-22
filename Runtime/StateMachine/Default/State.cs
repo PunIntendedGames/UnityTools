@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace PunIntended.Tools
 {
-    public abstract class StateRuntime<TOwner> : IState<TOwner, StateRuntime<TOwner>> where TOwner : MonoBehaviour
+    public abstract class State<TOwner> : IState<TOwner, State<TOwner>> where TOwner : MonoBehaviour
     {
         public TOwner Owner { get; set; }
-        public StateMachine<TOwner, StateRuntime<TOwner>> StateMachine { get; set; }
+        public StateMachineAbstract<TOwner, State<TOwner>> StateMachine { get; set; }
         protected GameObject GameObject => Owner.gameObject;
         protected Transform Transform => Owner.transform;
 
@@ -18,6 +18,7 @@ namespace PunIntended.Tools
         public virtual void OnUpdate() { }
         public virtual void OnLateUpdate() { }
         public virtual void OnFixedUpdate() { }
+        public virtual void OnGUI() { }
 
         // MonoBehaviour.StartCoroutine for state
         protected Coroutine StartLocalCoroutine(IEnumerator enumerator)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PunIntended.Tools
 {
-    public abstract class StateMachine<TOwner, TState> where TState : IState<TOwner, TState>
+    public abstract class StateMachineAbstract<TOwner, TState> where TState : IState<TOwner, TState>
     {
         public TOwner Owner { get; private set; }
 
@@ -11,7 +11,7 @@ namespace PunIntended.Tools
 
         protected readonly List<TState> CurrentStates = new();
 
-        public StateMachine(TOwner owner, params TState[] states)
+        public StateMachineAbstract(TOwner owner, params TState[] states)
         {
             Owner = owner;
             foreach (TState state in states)
@@ -48,9 +48,16 @@ namespace PunIntended.Tools
 
         private void SwitchCurrentStates(params Type[] stateTypes)
         {
-            foreach (IState<TOwner, TState> stateType in CurrentStates)
+            // need to get types first to avoid modifying current states collection
+            List<Type> stateTypesToRemove = new();
+            foreach (IState<TOwner, TState> state in CurrentStates)
             {
-                RemoveCurrentState(stateType.GetType());
+                stateTypesToRemove.Add(state.GetType());
+            }
+
+            foreach (Type stateType in stateTypesToRemove)
+            {
+                RemoveCurrentState(stateType);
             }
 
             foreach (Type stateType in stateTypes)

@@ -55,7 +55,7 @@ namespace PunIntended.Tools.Editor
 
         private void OnCreateNode(DropdownMenuAction action)
         {
-            GraphEditorNode newNode = new GraphEditorNode("New Node", new Rect(
+            GraphEditorNode newNode = new GraphEditorNode(this, "New Node", new Rect(
                 action.eventInfo.localMousePosition.x,
                 action.eventInfo.localMousePosition.y, 
                 200f, 
@@ -66,8 +66,13 @@ namespace PunIntended.Tools.Editor
 
         private void CreateNode()
         {
-            GraphEditorNode node = new("a node", new Rect(200f, 200f, 200f, 200f));
+            GraphEditorNode node = new(this, "a node", new Rect(200f, 200f, 200f, 200f));
             _graphEditorView.AddElement(node);
+        }
+
+        public void RemoveNode(GraphEditorNode node)
+        {
+            _graphEditorView.RemoveElement(node);
         }
     }
 }
