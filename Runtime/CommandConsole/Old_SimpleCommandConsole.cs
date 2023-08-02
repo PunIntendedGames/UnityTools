@@ -90,7 +90,7 @@ namespace PunIntended.Tools
             List<Assembly> filteredAssemblies = new();
             foreach (Assembly assembly in assemblies)
             {
-                
+
                 filteredAssemblies.Add(assembly);
             }
 
@@ -108,7 +108,7 @@ namespace PunIntended.Tools
                         CommandAttribute command = method.GetCustomAttribute<CommandAttribute>();
                         if (command != null)
                         {
-                            string key = command.Name == string.Empty ? method.Name : command.Name;
+                            string key = command.Alias == string.Empty ? method.Name : command.Alias;
                             if (!_availableCommands.TryAdd(key, method))
                             {
                                 WriteLine($"command with name '{key}' has already been found!", Color.red);
@@ -430,7 +430,7 @@ namespace PunIntended.Tools
         private static string GetCommandAsString(MethodInfo methodInfo)
         {
             ParameterInfo[] parameters = methodInfo.GetParameters();
-            string customName = methodInfo.GetCustomAttribute<CommandAttribute>().Name;
+            string customName = methodInfo.GetCustomAttribute<CommandAttribute>().Alias;
             string message = customName == string.Empty ? methodInfo.Name : customName;
             message += " ";
             message += "<color=#a3d3d3>";
@@ -497,22 +497,6 @@ namespace PunIntended.Tools
                 String = s;
                 Color = c;
             }
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Method)]
-    public class CommandAttribute : Attribute
-    {
-        public string Name { get; private set; }
-
-        public CommandAttribute()
-        {
-            Name = string.Empty;
-        }
-
-        public CommandAttribute(string name)
-        {
-            Name = name;
         }
     }
 }

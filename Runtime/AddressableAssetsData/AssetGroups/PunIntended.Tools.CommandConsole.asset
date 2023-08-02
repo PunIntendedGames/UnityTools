@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: PunIntended.Tools.CommandConsole
+  m_EditorClassIdentifier: 
+  m_GroupName: PunIntended.Tools.CommandConsole
+  m_Data:
+    m_SerializedData: []
+  m_GUID: c0532118cc4b1f845b9ded508177eee2
+  m_SerializeEntries:
+  - m_GUID: ab166c6606192284a8dedb1caf213ba0
+    m_Address: Packages/com.punintended.tools/Runtime/CommandConsole/Assembly Definitions.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3af22566a4b682d4abe8c99a5b15fc9f
+    m_Address: Packages/com.punintended.tools/Runtime/CommandConsole/PanelSettings_CommandConsole.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a702f26b8790e9845bb501e5be1c6bba
+    m_Address: Packages/com.punintended.tools/Runtime/CommandConsole/UXML_CommandConsole.uxml
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: ccfa0f11272aee544853ef1fe0c45dba, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 57248276ab6c29f4aa5a03a0c0528632, type: 2}
+    - {fileID: 11400000, guid: b9dfb2c86b7bfa9418a9ad9a17220c75, type: 2}

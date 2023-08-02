@@ -8,6 +8,8 @@ namespace PunIntended.Tools
         public override void OnEnter()
         {
             Owner.OnToggleConsole += OnOpen;
+
+            Owner.ConsoleUIDocument.rootVisualElement.Clear();
         }
 
         public override void OnExit()

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
+using System;
+using System.Reflection;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditorInternal;
@@ -46,7 +48,8 @@ namespace PunIntended.Tools
         public int Editor_FindAndCacheAssemblyDefinitionsEditor()
         {
             AssemblyDefinitionNames.Clear();
-            
+            AssemblyDefinitionNames.Add(Assembly.GetExecutingAssembly().GetName().Name);
+
             string filter = "t:" + nameof(AssemblyDefinitionAsset);
             string[] folders = { "Assets" };
             string[] guids = AssetDatabase.FindAssets(filter, folders);
