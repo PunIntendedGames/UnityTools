@@ -18,7 +18,7 @@ namespace PunIntended.Tools
         public virtual void OnUpdate() { }
         public virtual void OnLateUpdate() { }
         public virtual void OnFixedUpdate() { }
-        public virtual void OnGUI() { }
+        public virtual void OnGUIUpdate() { }
 
         // MonoBehaviour.StartCoroutine for state
         protected Coroutine StartLocalCoroutine(IEnumerator enumerator)

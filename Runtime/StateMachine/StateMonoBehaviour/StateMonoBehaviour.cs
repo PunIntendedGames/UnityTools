@@ -10,5 +10,9 @@ namespace PunIntended.Tools
         public StateMachineAbstract<TOwner, StateMonoBehaviour<TOwner>> StateMachine { get; set; }
         public virtual void OnEnter() { }
         public virtual void OnExit() { }
+        public virtual void OnUpdate() { }
+        public virtual void OnLateUpdate() { }
+        public virtual void OnFixedUpdate() { }
+        public virtual void OnGUIUpdate() { }
     }
 }

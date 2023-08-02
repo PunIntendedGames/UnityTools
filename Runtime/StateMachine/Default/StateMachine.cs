@@ -31,11 +31,11 @@ namespace PunIntended.Tools
             }
         }
 
-        public void UpdateGUI()
+        public void GUIUpdate()
         {
             foreach (State<TOwner> state in CurrentStates)
             {
-                state.OnGUI();
+                state.OnGUIUpdate();
             }
         }
     }
