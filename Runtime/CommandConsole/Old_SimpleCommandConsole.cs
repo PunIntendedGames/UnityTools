@@ -56,8 +56,8 @@ namespace PunIntended.Tools
 
                 _isOpen = true;
                 _closeKeyCode = closeKeyCode;
-                UnityEventManager.Singleton.OnGuiUpdate += DrawGUI;
-                UnityEventManager.Singleton.OnGuiUpdate += ReadInputs;
+                //UnityEventManager.Singleton.OnGuiUpdate += DrawGUI;
+                //UnityEventManager.Singleton.OnGuiUpdate += ReadInputs;
 
                 OnPressedEnter += PressedEnter;
                 OnPressedTab += TryAutoComplete;
@@ -70,8 +70,8 @@ namespace PunIntended.Tools
         private static void OnClose()
         {
             _isOpen = false;
-            UnityEventManager.Singleton.OnGuiUpdate -= DrawGUI;
-            UnityEventManager.Singleton.OnGuiUpdate -= ReadInputs;
+            //UnityEventManager.Singleton.OnGuiUpdate -= DrawGUI;
+            //UnityEventManager.Singleton.OnGuiUpdate -= ReadInputs;
 
             OnPressedEnter -= PressedEnter;
             OnPressedTab -= TryAutoComplete;

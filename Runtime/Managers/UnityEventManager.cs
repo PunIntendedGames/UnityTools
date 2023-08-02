@@ -1,32 +1,94 @@
 ﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace PunIntended.Tools
 {
     public class UnityEventManager : LazyMonoBehaviourSingleton<UnityEventManager>
     {
-        public event Action OnUpdate;
-        public event Action OnLateUpdate;
-        public event Action OnFixedUpdate;
-        public event Action OnGuiUpdate;
+        private readonly Dictionary<UpdateMethodType, Dictionary<Action, MonoBehaviour>> _subscribers = new();
 
-        private void Update()
+        private void Update() => InvokeUpdateMethodType(UpdateMethodType.Update);
+        private void FixedUpdate() => InvokeUpdateMethodType(UpdateMethodType.FixedUpdate);
+        private void LateUpdate() => InvokeUpdateMethodType(UpdateMethodType.LateUpdate);
+        private void OnGUI() => InvokeUpdateMethodType(UpdateMethodType.GUIUpdate);
+
+        private void InvokeUpdateMethodType(UpdateMethodType updateMethodType)
         {
-            OnUpdate?.Invoke();
+            if (_subscribers.TryGetValue(updateMethodType, out Dictionary<Action, MonoBehaviour> subscribers))
+            {
+                // keep track of unsubscribers (subscribed methods whose owner has become null),
+                // have to keep track in a seperate list to avoid modifying the collection during enumeration
+                List<Action> unsubscribers = new();
+                foreach (KeyValuePair<Action, MonoBehaviour> subscriber in subscribers)
+                {
+                    if (subscriber.Value != null)
+                    {
+                        if (subscriber.Value.isActiveAndEnabled)
+                        {
+                            subscriber.Key.Invoke(); // no null check on purpose, we want to know if this blows up!
+                        }
+                    }
+                    else
+                    {
+                        unsubscribers.Add(subscriber.Key);
+                    }
+                }
+
+                foreach (Action method in unsubscribers)
+                {
+                    subscribers.Remove(method);
+                }
+            }
         }
 
-        private void LateUpdate()
+        public void Subscribe(Action method, UpdateMethodType updateMethodType, MonoBehaviour owner)
         {
-            OnLateUpdate?.Invoke();
+            if (_subscribers.TryGetValue(updateMethodType, out Dictionary<Action, MonoBehaviour> methodTypeSubscribers))
+            {
+                if (!methodTypeSubscribers.TryAdd(method, owner))
+                {
+                    Debug.LogWarning($"{method} is already subscribed to {updateMethodType}!", owner);
+                }
+            }
+            else
+            {
+                Dictionary<Action, MonoBehaviour> subscriberDictionary = new()
+                {
+                    {
+                        method, owner
+                    }
+                };
+
+                _subscribers.Add(updateMethodType, subscriberDictionary);
+            }
         }
 
-        private void FixedUpdate() 
+        public void Unsubscribe(Action method, UpdateMethodType updateMethodType, MonoBehaviour owner)
         {
-            OnFixedUpdate?.Invoke();
+            if (_subscribers.TryGetValue(updateMethodType, out Dictionary<Action, MonoBehaviour> subscribers))
+            {
+                if (subscribers.ContainsKey(method))
+                {
+                    subscribers.Remove(method);
+                }
+                else
+                {
+                    Debug.LogWarning($"{method} was not subscribed to {updateMethodType}!", owner);
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"no methods have been subscribed to {updateMethodType}!");
+            }
         }
 
-        private void OnGUI()
+        public enum UpdateMethodType
         {
-            OnGuiUpdate?.Invoke();
+            Update,
+            FixedUpdate,
+            LateUpdate,
+            GUIUpdate
         }
     }
 }

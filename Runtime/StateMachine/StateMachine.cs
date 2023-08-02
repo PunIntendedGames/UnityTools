@@ -24,39 +24,6 @@ namespace PunIntended.Tools
             }
         }
 
-        // updating
-        public void Update()
-        {
-            foreach (IState<TOwner> state in CurrentStates)
-            {
-                state.OnUpdate();
-            }
-        }
-
-        public void FixedUpdate()
-        {
-            foreach (IState<TOwner> state in CurrentStates)
-            {
-                state.OnFixedUpdate();
-            }
-        }
-
-        public void LateUpdate()
-        {
-            foreach (IState<TOwner> state in CurrentStates)
-            {
-                state.OnLateUpdate();
-            }
-        }
-
-        public void GUIUpdate()
-        {
-            foreach (IState<TOwner> state in CurrentStates)
-            {
-                state.OnGUIUpdate();
-            }
-        }
-
         // switching
         public void Switch<T>()
             where T : IState<TOwner>
@@ -122,6 +89,7 @@ namespace PunIntended.Tools
         {
             IState<TOwner> state = _availableStates[stateType];
             CurrentStates.Add(state);
+            state.OnSetup();
             state.OnEnter();
         }
 
@@ -157,6 +125,7 @@ namespace PunIntended.Tools
             IState<TOwner> state = _availableStates[stateType];
             CurrentStates.Remove(state);
             state.OnExit();
+            state.OnCleanup();
         }
 
         private void RemoveCurrentStates(params Type[] stateTypes)
