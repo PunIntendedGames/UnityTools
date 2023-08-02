@@ -3,18 +3,18 @@ using System.Collections.Generic;
 
 namespace PunIntended.Tools
 {
-    public abstract class StateMachineAbstract<TOwner, TState> where TState : IState<TOwner, TState>
+    public class StateMachine<TOwner>
     {
         public TOwner Owner { get; private set; }
 
-        private readonly Dictionary<Type, TState> _availableStates = new();
+        private readonly Dictionary<Type, IState<TOwner>> _availableStates = new();
 
-        protected readonly List<TState> CurrentStates = new();
+        protected readonly List<IState<TOwner>> CurrentStates = new();
 
-        public StateMachineAbstract(TOwner owner, params TState[] states)
+        public StateMachine(TOwner owner, params IState<TOwner>[] states)
         {
             Owner = owner;
-            foreach (TState state in states)
+            foreach (IState<TOwner> state in states)
             {
                 state.Owner = Owner;
                 state.StateMachine = this;
@@ -24,24 +24,57 @@ namespace PunIntended.Tools
             }
         }
 
+        // updating
+        public void Update()
+        {
+            foreach (IState<TOwner> state in CurrentStates)
+            {
+                state.OnUpdate();
+            }
+        }
+
+        public void FixedUpdate()
+        {
+            foreach (IState<TOwner> state in CurrentStates)
+            {
+                state.OnFixedUpdate();
+            }
+        }
+
+        public void LateUpdate()
+        {
+            foreach (IState<TOwner> state in CurrentStates)
+            {
+                state.OnLateUpdate();
+            }
+        }
+
+        public void GUIUpdate()
+        {
+            foreach (IState<TOwner> state in CurrentStates)
+            {
+                state.OnGUIUpdate();
+            }
+        }
+
         // switching
-        public void Switch<T>() 
-            where T : IState<TOwner, TState>
+        public void Switch<T>()
+            where T : IState<TOwner>
         {
             SwitchCurrentStates(typeof(T));
         }
 
-        public void Switch<T, U>() 
-            where T : IState<TOwner, TState>
-            where U : IState<TOwner, TState>
+        public void Switch<T, U>()
+            where T : IState<TOwner>
+            where U : IState<TOwner>
         {
             SwitchCurrentStates(typeof(T), typeof(U));
         }
 
-        public void Switch<T, U, V>() 
-            where T : IState<TOwner, TState>
-            where U : IState<TOwner, TState>
-            where V : IState<TOwner, TState>
+        public void Switch<T, U, V>()
+            where T : IState<TOwner>
+            where U : IState<TOwner>
+            where V : IState<TOwner>
         {
             SwitchCurrentStates(typeof(T), typeof(U), typeof(V));
         }
@@ -50,7 +83,7 @@ namespace PunIntended.Tools
         {
             // need to get types first to avoid modifying current states collection
             List<Type> stateTypesToRemove = new();
-            foreach (IState<TOwner, TState> state in CurrentStates)
+            foreach (IState<TOwner> state in CurrentStates)
             {
                 stateTypesToRemove.Add(state.GetType());
             }
@@ -68,26 +101,26 @@ namespace PunIntended.Tools
 
         // adding
         public void Add<T>()
-            where T : IState<TOwner, TState>
+            where T : IState<TOwner>
         {
             AddCurrentState(typeof(T));
         }
 
         public void Add<T, U>()
-            where T : IState<TOwner, TState>
+            where T : IState<TOwner>
         {
             AddCurrentStates(typeof(T), typeof(U));
         }
 
         public void Add<T, U, V>()
-            where T : IState<TOwner, TState>
+            where T : IState<TOwner>
         {
             AddCurrentStates(typeof(T), typeof(U), typeof(V));
         }
 
         private void AddCurrentState(Type stateType)
         {
-            TState state = _availableStates[stateType];
+            IState<TOwner> state = _availableStates[stateType];
             CurrentStates.Add(state);
             state.OnEnter();
         }
@@ -102,26 +135,26 @@ namespace PunIntended.Tools
 
         // removing
         public void Remove<T>()
-            where T : IState<TOwner, TState>
+            where T : IState<TOwner>
         {
             RemoveCurrentState(typeof(T));
         }
 
         public void Remove<T, U>()
-            where T : IState<TOwner, TState>
+            where T : IState<TOwner>
         {
             RemoveCurrentStates(typeof(T), typeof(U));
         }
 
         public void Remove<T, U, V>()
-            where T : IState<TOwner, TState>
+            where T : IState<TOwner>
         {
             RemoveCurrentStates(typeof(T), typeof(U), typeof(V));
         }
 
         private void RemoveCurrentState(Type stateType)
         {
-            TState state = _availableStates[stateType];
+            IState<TOwner> state = _availableStates[stateType];
             CurrentStates.Remove(state);
             state.OnExit();
         }
