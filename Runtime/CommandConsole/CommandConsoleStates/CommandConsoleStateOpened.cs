@@ -75,14 +75,24 @@ namespace PunIntended.Tools
             label.style.flexGrow = 1; // The label will take all available space in the container
             container.Add(label);
 
-            // Create the button
-            Button button = new();
-            button.text = "Invoke";
-            button.style.width = 70f; // Set a fixed width for the button (you can change this value)
-            container.Add(button);
+            {
+                // Create the button
+                Button button = new();
+                button.text = "Invoke";
+                button.style.width = 70f;
+                container.Add(button);
+                button.style.marginLeft = 2f;
+            }
 
-            // Style the button and adjust its position within the container
-            button.style.marginLeft = 10; // Adjust the space between the label and button
+            {
+                // Create the button
+                Button button = new();
+                button.text = "X";
+                button.style.width = 10f;
+                container.Add(button);
+                button.style.marginLeft = 2f;
+            }
+
 
             return container;
         }
