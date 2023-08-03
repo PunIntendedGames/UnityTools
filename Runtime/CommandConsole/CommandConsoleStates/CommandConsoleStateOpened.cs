@@ -1,20 +1,29 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace PunIntended.Tools
 {
     internal class CommandConsoleStateOpened : State<CommandConsole>
     {
+        private readonly Input_CommandConsole _commandConsoleInput = new();
+
+        private TextField _inputField;
+        private ListView _commandHistory;
+
         public override void OnEnter()
         {
             Owner.OnToggleConsole += OnClose;
             InitializeVisualElements();
+            _commandConsoleInput.Enable();
+            _commandConsoleInput.CommandConsole.Accept.performed += OnAccept;
         }
 
         public override void OnExit()
         {
             Owner.OnToggleConsole -= OnClose;
+            _commandConsoleInput.Disable();
         }
 
         private void InitializeVisualElements()
@@ -30,25 +39,34 @@ namespace PunIntended.Tools
             Owner.ConsoleUIDocument.rootVisualElement.Add(background);
 
             // command input text field
-            TextField textField = new();
-            background.Add(textField);
-            textField.style.position = Position.Relative;
+            _inputField = new();
+            background.Add(_inputField);
+            _inputField.style.position = Position.Relative;
             //textField.style.marginBottom = 400f;
 
             //Owner.ConsoleUIDocument.rootVisualElement.Add(textField);
-            textField.Focus();
+            _inputField.Focus();
 
             // list of preview commands
-            ListView commandHistory = new(Owner.CommandHistory, 30f, MakeItem, BindItem);
-            background.Add(commandHistory);
-            commandHistory.showBorder = true;
+            _commandHistory = new(Owner.CommandHistory, 30f, MakeItem, BindItem);
+            background.Add(_commandHistory);
+            _commandHistory.showBorder = true;
 
             //for (int i = 0; i < 20; i++)
             //{
             //    Owner.CommandHistory.Add(new CommandConsole.Command() { Input = "asdasdasd" + i * i});
             //}
 
-            commandHistory.Rebuild();
+            _commandHistory.Rebuild();
+        }
+
+        private void OnAccept(InputAction.CallbackContext context)
+        {
+            string input = _inputField.text;
+            _inputField.value = string.Empty;
+            Owner.CommandHistory.Insert(0, new CommandConsole.Command() { Input = input });
+            _inputField.Focus();
+            _commandHistory.Rebuild();
         }
 
         private VisualElement MakeItem()
