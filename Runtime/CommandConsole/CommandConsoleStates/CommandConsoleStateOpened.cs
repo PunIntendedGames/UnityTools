@@ -20,7 +20,7 @@ namespace PunIntended.Tools
         private void InitializeVisualElements()
         {
             // background
-            VisualElement background = new VisualElement();
+            VisualElement background = new();
             background.style.backgroundColor = new StyleColor(Color.grey);
             background.style.width = 500f;
             background.style.height = 400f;
@@ -30,7 +30,7 @@ namespace PunIntended.Tools
             Owner.ConsoleUIDocument.rootVisualElement.Add(background);
 
             // command input text field
-            TextField textField = new TextField();
+            TextField textField = new();
             background.Add(textField);
             textField.style.position = Position.Relative;
             //textField.style.marginBottom = 400f;
@@ -43,10 +43,10 @@ namespace PunIntended.Tools
             background.Add(commandHistory);
             commandHistory.showBorder = true;
 
-            for (int i = 0; i < 20; i++)
-            {
-                Owner.CommandHistory.Add(new Command() { Input = "asdasdasd" + i * i});
-            }
+            //for (int i = 0; i < 20; i++)
+            //{
+            //    Owner.CommandHistory.Add(new CommandConsole.Command() { Input = "asdasdasd" + i * i});
+            //}
 
             commandHistory.Rebuild();
         }

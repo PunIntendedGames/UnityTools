@@ -89,14 +89,14 @@ namespace PunIntended.Tools
                     break;
             }
         }
-    }
 
-    internal class Command
-    {
-        public string Input;
-        public MethodInfo MethodInfo;
-        public CommandAttribute Attribute;
-        public object[] Parameters;
-        public Color Color;
+        internal class Command
+        {
+            public string Input;
+            public MethodInfo MethodInfo;
+            public CommandAttribute Attribute;
+            public object[] Parameters;
+            public Color Color;
+        }
     }
 }

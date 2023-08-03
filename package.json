@@ -8,5 +8,10 @@
   {
 	  "type": "git",
 	  "url": "https://github.com/PunIntendedGames/UnityTools"
+  },
+  "dependencies":
+  {
+	  "com.unity.addressables": "1.21.14",
+	  "com.unity.inputsystem": "1.4.4"
   }
 }
