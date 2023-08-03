@@ -59,7 +59,10 @@ namespace PunIntended.Tools
         {
             string input = _inputField.text;
             _inputField.value = string.Empty;
-            Owner.CommandHistory.Insert(0, new CommandConsole.Command() { Input = input });
+
+            ConsoleCommand command = new(input);
+
+            Owner.CommandHistory.Insert(0, command);
             _inputField.Focus();
             _commandHistory.Rebuild();
         }

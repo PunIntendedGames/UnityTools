@@ -12,7 +12,7 @@
             Owner.OnToggleConsole -= OnOpenedConsole;
         }
 
-        private void OnOpenedConsole() 
+        private void OnOpenedConsole()
         {
             StateMachine.Switch<CommandConsoleStateInitialize>();
         }
