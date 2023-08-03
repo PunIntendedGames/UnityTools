@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 namespace PunIntended.Tools
@@ -48,15 +50,10 @@ namespace PunIntended.Tools
             _inputField.Focus();
 
             // list of preview commands
-            _commandHistory = new(Owner.CommandHistory, 30f, MakeItem, BindItem);
+            _commandHistory = new(Owner.CommandHistory, -1f, MakeItem, BindItem);
             background.Add(_commandHistory);
+
             _commandHistory.showBorder = true;
-
-            //for (int i = 0; i < 20; i++)
-            //{
-            //    Owner.CommandHistory.Add(new CommandConsole.Command() { Input = "asdasdasd" + i * i});
-            //}
-
             _commandHistory.Rebuild();
         }
 
@@ -71,13 +68,30 @@ namespace PunIntended.Tools
 
         private VisualElement MakeItem()
         {
+            // Create a VisualElement container to hold the label and the button
+            VisualElement container = new();
+            container.style.flexDirection = FlexDirection.Row; // Make the container a horizontal layout
+
+            // Create the label
             Label label = new();
-            return label;
+            label.style.flexGrow = 1; // The label will take all available space in the container
+            container.Add(label);
+
+            // Create the button
+            Button button = new();
+            button.text = "Invoke";
+            button.style.width = 70f; // Set a fixed width for the button (you can change this value)
+            container.Add(button);
+
+            // Style the button and adjust its position within the container
+            button.style.marginLeft = 10; // Adjust the space between the label and button
+
+            return container;
         }
 
         private void BindItem(VisualElement element, int index)
         {
-            var label = (Label)element;
+            Label label = element.Q<Label>();
             label.text = Owner.CommandHistory[index].Input;
         }
 
