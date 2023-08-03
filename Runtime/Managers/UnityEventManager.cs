@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace PunIntended.Tools
@@ -7,6 +8,10 @@ namespace PunIntended.Tools
     public class UnityEventManager : LazyMonoBehaviourSingleton<UnityEventManager>
     {
         private readonly Dictionary<UpdateMethodType, Dictionary<Action, MonoBehaviour>> _subscribers = new();
+
+        private readonly Dictionary<UpdateMethodType, HashSet<KeyValuePair<Action,  MonoBehaviour>>> _toSubscribe = new();
+        private readonly Dictionary<UpdateMethodType, HashSet<KeyValuePair<Action, MonoBehaviour>>> _toUnsubscribe = new();
+        private readonly HashSet<KeyValuePair<UpdateMethodType, Dictionary<Action, MonoBehaviour>>> _toAddDictionaries = new();
 
         private void Update() => InvokeUpdateMethodType(UpdateMethodType.Update);
         private void FixedUpdate() => InvokeUpdateMethodType(UpdateMethodType.FixedUpdate);
@@ -17,10 +22,14 @@ namespace PunIntended.Tools
         {
             if (_subscribers.TryGetValue(updateMethodType, out Dictionary<Action, MonoBehaviour> subscribers))
             {
+                // TODO(berend): copies everything, bad for performance perhaps. currently done this way
+                // to avoid modifying subscriber collection during the loop.
+                Dictionary<Action, MonoBehaviour> currentSubscribers = subscribers.ToDictionary(entry => entry.Key, entry => entry.Value);
+
                 // keep track of unsubscribers (subscribed methods whose owner has become null),
-                // have to keep track in a seperate list to avoid modifying the collection during enumeration
+                // have to keep track in a seperate list to avoid modifying the collection during the loop.
                 List<Action> unsubscribers = new();
-                foreach (KeyValuePair<Action, MonoBehaviour> subscriber in subscribers)
+                foreach (KeyValuePair<Action, MonoBehaviour> subscriber in currentSubscribers)
                 {
                     if (subscriber.Value != null)
                     {
@@ -60,6 +69,7 @@ namespace PunIntended.Tools
                     }
                 };
 
+                //KeyValuePair<UpdateMethodType, Dictionary<Action, MonoBehaviour>> dictionary = new(updateMethodType, subscriberDictionary);
                 _subscribers.Add(updateMethodType, subscriberDictionary);
             }
         }
