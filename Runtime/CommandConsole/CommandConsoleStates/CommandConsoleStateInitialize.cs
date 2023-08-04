@@ -74,7 +74,7 @@ namespace PunIntended.Tools
                                 string key = command.Alias == string.Empty ? method.Name : command.Alias;
                                 if (!Owner.AvailableCommands.TryAdd(key, method))
                                 {
-                                    Owner.WriteWarning($"command with name '{key}' has already been found!");
+                                    Owner.WriteLine($"command with name '{key}' has already been found!", CommandConsoleLine.Type.Error);
                                 }
                             }
                         }

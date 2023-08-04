@@ -61,10 +61,12 @@ namespace PunIntended.Tools
             _inputField.value = string.Empty;
 
             ConsoleCommand command = new(input);
+            command.Execute();
 
-            Owner.CommandHistory.Insert(0, command);
-            _inputField.Focus();
+            //Owner.CommandHistory.Insert(0, command.ConsoleLine);
             _commandHistory.Rebuild();
+
+            _inputField.Focus();
         }
 
         private VisualElement MakeItem()
@@ -102,13 +104,26 @@ namespace PunIntended.Tools
 
         private void BindItem(VisualElement element, int index)
         {
+            CommandConsoleLine line = Owner.CommandHistory[index];
             Label label = element.Q<Label>();
-            label.text = Owner.CommandHistory[index].Input;
+            label.text = line.Text;
+            label.style.color = GetColor(line.LineType);
         }
 
         private void OnClose()
         {
             StateMachine.Switch<CommandConsoleStateClosed>();
+        }
+
+        private static Color GetColor(CommandConsoleLine.Type type)
+        {
+            return type switch
+            {
+                CommandConsoleLine.Type.Normal => Color.white,
+                CommandConsoleLine.Type.Warning => Color.yellow,
+                CommandConsoleLine.Type.Error => Color.red,
+                _ => Color.magenta, // should not happen!
+            };
         }
     }
 }

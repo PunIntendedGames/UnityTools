@@ -12,8 +12,8 @@ namespace PunIntended.Tools
     {
         internal event Action OnToggleConsole;
 
-        internal ConcurrentDictionary<string, MethodInfo> AvailableCommands = new();
-        internal List<ConsoleCommand> CommandHistory = new();
+        internal readonly ConcurrentDictionary<string, MethodInfo> AvailableCommands = new();
+        internal readonly List<CommandConsoleLine> CommandHistory = new();
 
         internal UIDocument ConsoleUIDocument;
 
@@ -36,28 +36,40 @@ namespace PunIntended.Tools
             OnToggleConsole?.Invoke();
         }
 
-        internal void WriteLine(string text)
+        internal void WriteLine(string text, CommandConsoleLine.Type type = CommandConsoleLine.Type.Normal)
         {
-            Debug.Log(text);
+            CommandConsoleLine commandConsoleLine = new(text, type);
+            CommandHistory.Add(commandConsoleLine);
+        }
+    }
+
+    internal class CommandConsoleLine
+    {
+        internal string Text { get; private set; }
+        internal Type LineType { get; private set; }
+
+        internal CommandConsoleLine(string text, Type type)
+        {
+            Text = text;
+            LineType = type;
         }
 
-        internal void WriteWarning(string text)
+        internal enum Type
         {
-            Debug.Log(text);
-        }
-
-        internal void WriteError(string text)
-        {
-            Debug.Log(text);
+            Normal,
+            Warning,
+            Error
         }
     }
 
     internal class ConsoleCommand
     {
-        internal string Input;
-        internal MethodInfo MethodInfo;
-        //internal CommandAttribute Attribute;
-        internal object[] Parameters;
+        internal readonly string Input;
+        internal readonly MethodInfo MethodInfo;
+        internal readonly object[] Parameters;
+        internal readonly CommandConsoleLine ConsoleLine;
+
+        private readonly bool _initializedSuccesfully;
 
         internal ConsoleCommand(string input)
         {
@@ -73,54 +85,54 @@ namespace PunIntended.Tools
                     Parameters[i] = commandAndParameters[i + 1];
                 }
 
-                if (TryCastParametersForCommand())
-                {
-                    Execute();
-                }
+                _initializedSuccesfully = TryCastParametersForCommand();
             }
             else
             {
-                CommandConsole.Singleton.WriteError($"{Input} is not a valid command!");
+                CommandConsole.Singleton.WriteLine($"{Input} is not a valid command!", CommandConsoleLine.Type.Error);
             }
         }
 
         internal void Execute()
         {
-            Type type = MethodInfo.DeclaringType;
-            CommandAttribute commandAttribute = MethodInfo.GetCustomAttribute<CommandAttribute>();
-            switch (commandAttribute.ExecutionType)
+            if (_initializedSuccesfully)
             {
-                case CommandExectionType.FindFirstObjectOfType:
-                    {
-                        Object instance = Object.FindFirstObjectByType(type);
-                        if (instance != null)
+                Type type = MethodInfo.DeclaringType;
+                CommandAttribute commandAttribute = MethodInfo.GetCustomAttribute<CommandAttribute>();
+                switch (commandAttribute.ExecutionType)
+                {
+                    case CommandExectionType.FindFirstObjectOfType:
                         {
-                            MethodInfo.Invoke(instance, Parameters);
-                        }
-                        else
-                        {
-                            CommandConsole.Singleton.WriteWarning($"no instance for {type.Name} was found!");
-                        }
-                    }
-
-                    break;
-                case CommandExectionType.FindAllObjectsOfType:
-                    {
-                        Object[] instances = Object.FindObjectsByType(type, FindObjectsSortMode.InstanceID);
-                        if (instances.Length > 0)
-                        {
-                            foreach (Object instance in instances)
+                            Object instance = Object.FindFirstObjectByType(type);
+                            if (instance != null)
                             {
                                 MethodInfo.Invoke(instance, Parameters);
                             }
+                            else
+                            {
+                                CommandConsole.Singleton.WriteLine($"no instance for {type.Name} was found!", CommandConsoleLine.Type.Warning);
+                            }
                         }
-                        else
-                        {
-                            CommandConsole.Singleton.WriteWarning($"no instances for {type.Name} were found!");
-                        }
-                    }
 
-                    break;
+                        break;
+                    case CommandExectionType.FindAllObjectsOfType:
+                        {
+                            Object[] instances = Object.FindObjectsByType(type, FindObjectsSortMode.InstanceID);
+                            if (instances.Length > 0)
+                            {
+                                foreach (Object instance in instances)
+                                {
+                                    MethodInfo.Invoke(instance, Parameters);
+                                }
+                            }
+                            else
+                            {
+                                CommandConsole.Singleton.WriteLine($"no instances for {type.Name} were found!", CommandConsoleLine.Type.Warning);
+                            }
+                        }
+
+                        break;
+                }
             }
         }
 
@@ -130,7 +142,7 @@ namespace PunIntended.Tools
             int expectedParameterCount = MethodInfo.GetParameters().Length;
             if (MethodInfo.GetParameters().Length != Parameters.Length)
             {
-                CommandConsole.Singleton.WriteError($"{Parameters.Length} parameters provided, expected {expectedParameterCount}!");
+                CommandConsole.Singleton.WriteLine($"{Parameters.Length} parameters provided, expected {expectedParameterCount}!", CommandConsoleLine.Type.Error);
                 return false;
             }
 
@@ -139,6 +151,7 @@ namespace PunIntended.Tools
             {
                 ParameterInfo parameterInfo = parameterInfos[i];
                 Type parameterType = parameterInfo.ParameterType;
+
                 // ints
                 if (parameterType == typeof(int))
                 {
@@ -148,7 +161,20 @@ namespace PunIntended.Tools
                     }
                     else
                     {
-                        CommandConsole.Singleton.WriteError($"{(string)Parameters[i]} was provided as parameter, but expected an integer!");
+                        CommandConsole.Singleton.WriteLine($"{(string)Parameters[i]} was provided as parameter, but expected an integer!", CommandConsoleLine.Type.Error);
+                        return false;
+                    }
+                }
+                // floats
+                else if (parameterType == typeof(float))
+                {
+                    if (float.TryParse((string)Parameters[i], out float floatingPoint))
+                    {
+                        Parameters[i] = floatingPoint;
+                    }
+                    else
+                    {
+                        CommandConsole.Singleton.WriteLine($"{(string)Parameters[i]} was provided as parameter, but expected a float!", CommandConsoleLine.Type.Error);
                         return false;
                     }
                 }
@@ -165,20 +191,7 @@ namespace PunIntended.Tools
                     }
                     else
                     {
-                        CommandConsole.Singleton.WriteError($"{(string)Parameters[i]} was provided as parameter, but expected a bool!");
-                        return false;
-                    }
-                }
-                // floats
-                else if (parameterType == typeof(float))
-                {
-                    if (float.TryParse((string)Parameters[i], out float floatingPoint))
-                    {
-                        Parameters[i] = floatingPoint;
-                    }
-                    else
-                    {
-                        CommandConsole.Singleton.WriteError($"{(string)Parameters[i]} was provided as parameter, but expected a float!");
+                        CommandConsole.Singleton.WriteLine($"{(string)Parameters[i]} was provided as parameter, but expected a bool!", CommandConsoleLine.Type.Error);
                         return false;
                     }
                 }
@@ -189,7 +202,7 @@ namespace PunIntended.Tools
                 }
                 else
                 {
-                    CommandConsole.Singleton.WriteError($"parameter {(string)Parameters[i]} is of an unexpected type!");
+                    CommandConsole.Singleton.WriteLine($"parameter {(string)Parameters[i]} is of an unexpected type!", CommandConsoleLine.Type.Error);
                     return false;
                 }
             }
