@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 
 namespace PunIntended.Tools

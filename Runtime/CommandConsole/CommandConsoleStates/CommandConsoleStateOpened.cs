@@ -10,7 +10,7 @@ namespace PunIntended.Tools
         private readonly Input_CommandConsole _commandConsoleInput = new();
 
         private TextField _inputField;
-        private ListView _commandHistory;
+        private ListView _commandHistoryListView;
 
         public override void OnEnter()
         {
@@ -48,23 +48,25 @@ namespace PunIntended.Tools
             _inputField.Focus();
 
             // list of preview commands
-            _commandHistory = new(Owner.CommandHistory, -1f, MakeItem, BindItem);
-            background.Add(_commandHistory);
+            _commandHistoryListView = new(Owner.CommandHistory, -1f, MakeItem, BindItem);
+            background.Add(_commandHistoryListView);
 
-            _commandHistory.showBorder = true;
-            _commandHistory.Rebuild();
+            _commandHistoryListView.showBorder = true;
+            _commandHistoryListView.Rebuild();
         }
 
         private void OnAccept(InputAction.CallbackContext context)
         {
-            string input = _inputField.text;
-            _inputField.value = string.Empty;
+            if (!string.IsNullOrWhiteSpace(_inputField.text))
+            {
+                string input = _inputField.text;
+                _inputField.value = string.Empty;
 
-            ConsoleCommand command = new(input);
-            command.Execute();
+                ConsoleCommand command = new(input);
+                command.Execute();
 
-            //Owner.CommandHistory.Insert(0, command.ConsoleLine);
-            _commandHistory.Rebuild();
+                _commandHistoryListView.Rebuild();
+            }
 
             _inputField.Focus();
         }
@@ -85,15 +87,6 @@ namespace PunIntended.Tools
                 Button button = new();
                 button.text = "Invoke";
                 button.style.width = 70f;
-                container.Add(button);
-                button.style.marginLeft = 2f;
-            }
-
-            {
-                // Create the button
-                Button button = new();
-                button.text = "X";
-                button.style.width = 10f;
                 container.Add(button);
                 button.style.marginLeft = 2f;
             }

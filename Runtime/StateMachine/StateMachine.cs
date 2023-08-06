@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace PunIntended.Tools
 {
+    [Serializable]
     public class StateMachine<TOwner>
     {
         public TOwner Owner { get; private set; }

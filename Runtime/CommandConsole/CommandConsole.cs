@@ -39,7 +39,12 @@ namespace PunIntended.Tools
         internal void WriteLine(string text, CommandConsoleLine.Type type = CommandConsoleLine.Type.Normal)
         {
             CommandConsoleLine commandConsoleLine = new(text, type);
-            CommandHistory.Add(commandConsoleLine);
+            CommandHistory.Insert(0, commandConsoleLine);
+
+            if(CommandHistory.Count > 50)
+            {
+                CommandHistory.RemoveAt(CommandHistory.Count - 1);
+            }
         }
     }
 
