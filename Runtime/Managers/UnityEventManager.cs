@@ -9,10 +9,6 @@ namespace PunIntended.Tools
     {
         private readonly Dictionary<UpdateMethodType, Dictionary<Action, MonoBehaviour>> _subscribers = new();
 
-        private readonly Dictionary<UpdateMethodType, HashSet<KeyValuePair<Action,  MonoBehaviour>>> _toSubscribe = new();
-        private readonly Dictionary<UpdateMethodType, HashSet<KeyValuePair<Action, MonoBehaviour>>> _toUnsubscribe = new();
-        private readonly HashSet<KeyValuePair<UpdateMethodType, Dictionary<Action, MonoBehaviour>>> _toAddDictionaries = new();
-
         private void Update() => InvokeUpdateMethodType(UpdateMethodType.Update);
         private void FixedUpdate() => InvokeUpdateMethodType(UpdateMethodType.FixedUpdate);
         private void LateUpdate() => InvokeUpdateMethodType(UpdateMethodType.LateUpdate);
@@ -68,8 +64,7 @@ namespace PunIntended.Tools
                         method, owner
                     }
                 };
-
-                //KeyValuePair<UpdateMethodType, Dictionary<Action, MonoBehaviour>> dictionary = new(updateMethodType, subscriberDictionary);
+                
                 _subscribers.Add(updateMethodType, subscriberDictionary);
             }
         }

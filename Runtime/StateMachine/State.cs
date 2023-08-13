@@ -6,14 +6,14 @@ namespace PunIntended.Tools
     {
         public TOwner Owner { get; set; }
         public StateMachine<TOwner> StateMachine { get; set; }
-        public abstract void OnSetup();
-        public abstract void OnCleanup();
-        public abstract void OnEnter();
-        public abstract void OnUpdate();
-        public abstract void OnFixedUpdate();
-        public abstract void OnLateUpdate();
-        public abstract void OnGUIUpdate();
-        public abstract void OnExit();
+        public void OnSetup();
+        public void OnCleanup();
+        public void OnEnter();
+        public void OnUpdate();
+        public void OnFixedUpdate();
+        public void OnLateUpdate();
+        public void OnGUIUpdate();
+        public void OnExit();
     }
 
     public abstract class State<TOwner> : IState<TOwner> where TOwner : MonoBehaviour
