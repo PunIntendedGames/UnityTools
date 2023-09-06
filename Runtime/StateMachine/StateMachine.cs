@@ -4,13 +4,13 @@ using System.Collections.Generic;
 namespace PunIntended.Tools
 {
     [Serializable]
-    public class StateMachine<TOwner>
+    public class StateMachine<TOwner> : UnityEngine.Object
     {
         public TOwner Owner { get; private set; }
 
-        private readonly Dictionary<Type, IState<TOwner>> _availableStates = new();
+        public readonly Dictionary<Type, IState<TOwner>> AvailableStates = new();
 
-        protected readonly List<IState<TOwner>> CurrentStates = new();
+        private readonly List<IState<TOwner>> _currentStates = new();
 
         public StateMachine(TOwner owner, params IState<TOwner>[] states)
         {
@@ -21,7 +21,7 @@ namespace PunIntended.Tools
                 state.StateMachine = this;
 
                 Type type = state.GetType();
-                _availableStates.Add(type, state);
+                AvailableStates.Add(type, state);
             }
         }
 
@@ -51,7 +51,7 @@ namespace PunIntended.Tools
         {
             // need to get types first to avoid modifying current states collection
             List<Type> stateTypesToRemove = new();
-            foreach (IState<TOwner> state in CurrentStates)
+            foreach (IState<TOwner> state in _currentStates)
             {
                 stateTypesToRemove.Add(state.GetType());
             }
@@ -88,8 +88,8 @@ namespace PunIntended.Tools
 
         private void AddCurrentState(Type stateType)
         {
-            IState<TOwner> state = _availableStates[stateType];
-            CurrentStates.Add(state);
+            IState<TOwner> state = AvailableStates[stateType];
+            _currentStates.Add(state);
             state.OnSetup();
             state.OnEnter();
         }
@@ -123,8 +123,8 @@ namespace PunIntended.Tools
 
         private void RemoveCurrentState(Type stateType)
         {
-            IState<TOwner> state = _availableStates[stateType];
-            CurrentStates.Remove(state);
+            IState<TOwner> state = AvailableStates[stateType];
+            _currentStates.Remove(state);
             state.OnExit();
             state.OnCleanup();
         }

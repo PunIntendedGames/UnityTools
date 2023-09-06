@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using UnityEngine;
 
 namespace PunIntended.Tools
 {
@@ -15,13 +18,14 @@ namespace PunIntended.Tools
         public void OnGUIUpdate();
         public void OnExit();
     }
-
+    
+    [Serializable]
     public abstract class State<TOwner> : IState<TOwner> where TOwner : MonoBehaviour
     {
         public TOwner Owner { get; set; }
         public StateMachine<TOwner> StateMachine { get; set; }
-        public void OnSetup() => StateUtility.SetupState(this);
-        public void OnCleanup() => StateUtility.CleanupState(this);
+        public virtual void OnSetup() => StateUtility.SetupState(this);
+        public virtual void OnCleanup() => StateUtility.CleanupState(this);
         public virtual void OnEnter() { }
         public virtual void OnUpdate() { }
         public virtual void OnFixedUpdate() { }
@@ -30,18 +34,40 @@ namespace PunIntended.Tools
         public virtual void OnExit() { }
     }
 
+    [Serializable]
     public abstract class StateMonoBehaviour<TOwner> : MonoBehaviour, IState<TOwner> where TOwner : MonoBehaviour
     {
         public TOwner Owner { get; set; }
         public StateMachine<TOwner> StateMachine { get; set; }
-        public void OnSetup() => StateUtility.SetupState(this);
-        public void OnCleanup() => StateUtility.CleanupState(this);
+        public virtual void OnSetup() => StateUtility.SetupState(this);
+        public virtual void OnCleanup() => StateUtility.CleanupState(this);
         public virtual void OnEnter() { }
         public virtual void OnUpdate() { }
         public virtual void OnFixedUpdate() { }
         public virtual void OnLateUpdate() { }
         public virtual void OnGUIUpdate() { }
         public virtual void OnExit() { }
+    }
+
+    public abstract class SuperState<TOwner> : StateMonoBehaviour<TOwner> where TOwner : MonoBehaviour
+    {
+        public List<IState<TOwner>> SubStates = new();
+
+        public override void OnSetup()
+        {
+            foreach (IState<TOwner> state in SubStates)
+            {
+                StateUtility.SetupState(state);
+            }
+        }
+        
+        public override void OnCleanup()
+        {
+            foreach (IState<TOwner> state in SubStates)
+            {
+                StateUtility.CleanupState(state);
+            }
+        }
     }
 
     internal static class StateUtility
