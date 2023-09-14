@@ -4,14 +4,8 @@
   "displayName": "Pun Intended Tools",
   "unity": "2019.1",
   "description": "contains tools such as a statemachine, a pooling system, and lazy singletons",
-  "repository": 
-  {
-	  "type": "git",
-	  "url": "https://github.com/PunIntendedGames/UnityTools"
-  },
-  "dependencies":
-  {
-	  "com.unity.addressables": "1.21.14",
-	  "com.unity.inputsystem": "1.4.4"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PunIntendedGames/UnityTools"
   }
 }
