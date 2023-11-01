@@ -136,5 +136,19 @@ namespace PunIntended.Tools
                 RemoveCurrentState(stateType);
             }
         }
+
+        public bool IsInState<T>()
+            where T : IState<TOwner>
+        {
+            foreach (IState<TOwner> state in _currentStates)
+            {
+                if (state.GetType() == typeof(T))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
