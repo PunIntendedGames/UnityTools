@@ -11,6 +11,7 @@ namespace PunIntended.Tools
         public readonly Dictionary<Type, IState<TOwner>> AvailableStates = new();
 
         private readonly List<IState<TOwner>> _currentStates = new();
+        public IReadOnlyList<IState<TOwner>> CurrentStates => _currentStates;
 
         public StateMachine(TOwner owner, params IState<TOwner>[] states)
         {
