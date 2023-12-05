@@ -29,14 +29,14 @@ namespace PunIntended.Tools
         public void Switch<T>()
             where T : IState<TOwner>
         {
-            SwitchCurrentStates(typeof(T));
+            Switch(typeof(T));
         }
 
         public void Switch<T, U>()
             where T : IState<TOwner>
             where U : IState<TOwner>
         {
-            SwitchCurrentStates(typeof(T), typeof(U));
+            Switch(typeof(T), typeof(U));
         }
 
         public void Switch<T, U, V>()
@@ -44,10 +44,10 @@ namespace PunIntended.Tools
             where U : IState<TOwner>
             where V : IState<TOwner>
         {
-            SwitchCurrentStates(typeof(T), typeof(U), typeof(V));
+            Switch(typeof(T), typeof(U), typeof(V));
         }
-
-        private void SwitchCurrentStates(params Type[] stateTypes)
+        
+        public void Switch(params Type[] stateTypes)
         {
             // need to get types first to avoid modifying current states collection
             List<Type> stateTypesToRemove = new();
