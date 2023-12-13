@@ -70,9 +70,9 @@ namespace PunIntended.Tools
         }
     }
 
-    internal static class StateUtility
+    public static class StateUtility
     {
-        internal static void SetupState<TOwner>(IState<TOwner> state) where TOwner : MonoBehaviour
+        public static void SetupState<TOwner>(IState<TOwner> state) where TOwner : MonoBehaviour
         {
             UnityEventManager.Singleton.Subscribe(state.OnUpdate, UnityEventManager.UpdateMethodType.Update, state.Owner);
             UnityEventManager.Singleton.Subscribe(state.OnFixedUpdate, UnityEventManager.UpdateMethodType.FixedUpdate, state.Owner);
@@ -80,7 +80,7 @@ namespace PunIntended.Tools
             UnityEventManager.Singleton.Subscribe(state.OnGUIUpdate, UnityEventManager.UpdateMethodType.GUIUpdate, state.Owner);
         }
 
-        internal static void CleanupState<TOwner>(IState<TOwner> state) where TOwner : MonoBehaviour
+        public static void CleanupState<TOwner>(IState<TOwner> state) where TOwner : MonoBehaviour
         {
             UnityEventManager.Singleton.Unsubscribe(state.OnUpdate, UnityEventManager.UpdateMethodType.Update, state.Owner);
             UnityEventManager.Singleton.Unsubscribe(state.OnFixedUpdate, UnityEventManager.UpdateMethodType.FixedUpdate, state.Owner);
